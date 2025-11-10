@@ -16,12 +16,26 @@ interface Expense {
 
 interface ExpenseTableProps {
   expenses: Expense[];
+  isLoading?: boolean;
 }
 
-const ExpenseTable = ({ expenses }: ExpenseTableProps) => {
+const ExpenseTable = ({ expenses, isLoading = false }: ExpenseTableProps) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterType, setFilterType] = useState("all");
   const [sortConfig, setSortConfig] = useState<{ key: keyof Expense; direction: "asc" | "desc" } | null>(null);
+
+  if (isLoading) {
+    return (
+      <div className="p-6 space-y-4">
+        <div className="h-8 bg-muted animate-pulse rounded w-32 mb-4" />
+        <div className="space-y-2">
+          {[1, 2, 3, 4, 5].map((i) => (
+            <div key={i} className="h-12 bg-muted animate-pulse rounded" />
+          ))}
+        </div>
+      </div>
+    );
+  }
 
   const handleSort = (key: keyof Expense) => {
     setSortConfig((current) => {

@@ -23,6 +23,7 @@ const Dashboard = () => {
   const [expenses, setExpenses] = useState(mockExpenses);
   const [modalType, setModalType] = useState<"add" | "update" | "delete" | null>(null);
   const [showCharts, setShowCharts] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
 
   const totalIncome = expenses
     .filter((e) => e.type === "Income")
@@ -150,13 +151,13 @@ const Dashboard = () => {
         {/* Charts */}
         {showCharts && (
           <Card className="p-6 shadow-soft border-border/50 bg-gradient-card">
-            <ExpenseCharts expenses={expenses} />
+            <ExpenseCharts expenses={expenses} isLoading={isLoading} />
           </Card>
         )}
 
         {/* Expense Table */}
         <Card className="shadow-soft border-border/50 bg-gradient-card overflow-hidden">
-          <ExpenseTable expenses={expenses} />
+          <ExpenseTable expenses={expenses} isLoading={isLoading} />
         </Card>
       </div>
 

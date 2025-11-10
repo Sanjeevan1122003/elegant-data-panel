@@ -25,6 +25,7 @@ interface ExpenseModalProps {
 
 const ExpenseModal = ({ type, isOpen, onClose, expenses, onSuccess }: ExpenseModalProps) => {
   const { toast } = useToast();
+  const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
     user_expense_id: "",
     amount: "",
@@ -49,7 +50,7 @@ const ExpenseModal = ({ type, isOpen, onClose, expenses, onSuccess }: ExpenseMod
     }
   }, [formData.user_expense_id, expenses, type]);
 
-  const handleAdd = () => {
+  const handleAdd = async () => {
     if (!formData.amount || !formData.category) {
       toast({
         title: "Missing fields",
@@ -58,6 +59,10 @@ const ExpenseModal = ({ type, isOpen, onClose, expenses, onSuccess }: ExpenseMod
       });
       return;
     }
+
+    setIsLoading(true);
+    // Simulate API delay
+    await new Promise(resolve => setTimeout(resolve, 800));
 
     const newExpense: Expense = {
       id: expenses.length + 1,
@@ -74,9 +79,10 @@ const ExpenseModal = ({ type, isOpen, onClose, expenses, onSuccess }: ExpenseMod
       description: "Expense added successfully",
     });
     resetForm();
+    setIsLoading(false);
   };
 
-  const handleUpdate = () => {
+  const handleUpdate = async () => {
     if (!formData.user_expense_id) {
       toast({
         title: "Select expense",
@@ -85,6 +91,10 @@ const ExpenseModal = ({ type, isOpen, onClose, expenses, onSuccess }: ExpenseMod
       });
       return;
     }
+
+    setIsLoading(true);
+    // Simulate API delay
+    await new Promise(resolve => setTimeout(resolve, 800));
 
     const updatedExpenses = expenses.map((e) =>
       e.user_expense_id === Number(formData.user_expense_id)
@@ -104,10 +114,16 @@ const ExpenseModal = ({ type, isOpen, onClose, expenses, onSuccess }: ExpenseMod
       description: "Expense updated successfully",
     });
     resetForm();
+    setIsLoading(false);
   };
 
-  const handleDelete = () => {
+  const handleDelete = async () => {
     const ids = deleteIds.split(",").map((id) => Number(id.trim()));
+    
+    setIsLoading(true);
+    // Simulate API delay
+    await new Promise(resolve => setTimeout(resolve, 800));
+    
     const updatedExpenses = expenses.filter((e) => !ids.includes(e.user_expense_id));
 
     onSuccess(updatedExpenses);
@@ -116,6 +132,7 @@ const ExpenseModal = ({ type, isOpen, onClose, expenses, onSuccess }: ExpenseMod
       description: `${ids.length} expense(s) deleted successfully`,
     });
     setDeleteIds("");
+    setIsLoading(false);
   };
 
   const resetForm = () => {
@@ -177,8 +194,15 @@ const ExpenseModal = ({ type, isOpen, onClose, expenses, onSuccess }: ExpenseMod
               <p className="text-sm text-muted-foreground">
                 Warning: This action cannot be undone
               </p>
-              <Button onClick={handleDelete} variant="destructive" className="w-full">
-                Delete Expenses
+              <Button onClick={handleDelete} variant="destructive" className="w-full" disabled={isLoading}>
+                {isLoading ? (
+                  <span className="flex items-center gap-2">
+                    <div className="w-4 h-4 border-2 border-destructive-foreground border-t-transparent rounded-full animate-spin" />
+                    Deleting...
+                  </span>
+                ) : (
+                  "Delete Expenses"
+                )}
               </Button>
             </div>
           ) : (
@@ -251,8 +275,16 @@ const ExpenseModal = ({ type, isOpen, onClose, expenses, onSuccess }: ExpenseMod
               <Button
                 onClick={type === "add" ? handleAdd : handleUpdate}
                 className="w-full bg-gradient-primary hover:opacity-90"
+                disabled={isLoading}
               >
-                {type === "add" ? "Add Expense" : "Update Expense"}
+                {isLoading ? (
+                  <span className="flex items-center gap-2">
+                    <div className="w-4 h-4 border-2 border-primary-foreground border-t-transparent rounded-full animate-spin" />
+                    {type === "add" ? "Adding..." : "Updating..."}
+                  </span>
+                ) : (
+                  type === "add" ? "Add Expense" : "Update Expense"
+                )}
               </Button>
             </>
           )}
